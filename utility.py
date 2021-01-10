@@ -16,6 +16,7 @@ from math import log10, sqrt
 from torch.nn.functional import mse_loss
 
 import time
+import sys
 
 """
 Function to be used to calculate the psnr between an input image and a target image
@@ -94,7 +95,7 @@ def restoreModel(net, scheduler, optimizer, restore=False, checkpoint_path=""):
             del checkpoint
         else:
             print("=> no checkpoint found at '{}'".format(checkpoint_path))
-            exit()
+            sys.exit()
     else:
         step = 0
 
