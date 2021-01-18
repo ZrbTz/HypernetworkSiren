@@ -108,3 +108,16 @@ def print_CUDA_memory_statistics():
     allocated = torch.cuda.memory_allocated()
     total = torch.cuda.get_device_properties(0).total_memory
     print("CUDA-0 used memory [{:} bytes / {:} bytes ({:.2%})]".format(allocated, total,allocated/total))
+
+'''
+function to generate a grid width x height
+used as an input for any SIREN
+'''
+def get_mgrid(width, height, dim=2):
+    heightTensor = torch.linspace(-1, 1, steps=height)
+    widthTensor = torch.linspace(-1, 1, steps=width)
+ 
+    mgrid = torch.stack(torch.meshgrid(heightTensor, widthTensor), dim=-1)
+ 
+    mgrid = mgrid.reshape(-1, dim)
+    return mgrid
