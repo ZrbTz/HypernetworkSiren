@@ -1,4 +1,4 @@
- 
+from . import *
 '''
 Function to get an upscaled image using the bicubip interpolation method
 '''

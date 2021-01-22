@@ -1,3 +1,4 @@
+from . import *
 ########################################################################################################################
 # HYPERNETWORK TRAINING #
 # Training of hypersyren, the hypernetwork will be trained to give our SIREN a good prior
