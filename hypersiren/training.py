@@ -85,7 +85,7 @@ def prior_train(net, dataloader, validationDataLoader, writer, lr=1e-4, gamma=0.
 # TRAINING OF A BASIC SIREN #
 # This function trains a basic SIREN 
 
-def train(net, model_input, ground_truth, writer, name, lr=1e-4, gamma=0.1, total_steps = 1500, steps_til_summary = 100, width = 64, height = 64. useL1 = False, useL2 = False):
+def train(net, model_input, ground_truth, writer, name, lr=1e-4, gamma=0.1, total_steps = 1500, steps_til_summary = 100, width = 64, height = 64, useL1 = False, useL2 = False):
   #define optimizer
   optimizer = torch.optim.Adam(lr=lr, params=net.parameters(), weight_decay=0.0005)
   scheduler= torch.optim.lr_scheduler.StepLR(optimizer, 800, gamma=gamma)
@@ -109,7 +109,7 @@ def train(net, model_input, ground_truth, writer, name, lr=1e-4, gamma=0.1, tota
         L1_reg = torch.tensor(0., requires_grad=True)
         for name, param in net.named_parameters():
             if 'weight' in name:
-            L1_reg = L1_reg + torch.norm(param, 1)
+                L1_reg = L1_reg + torch.norm(param, 1)
         loss = loss + reg_lambda * L1_reg
 
       #L2 regularization

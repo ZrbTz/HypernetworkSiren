@@ -1,3 +1,7 @@
+import torch
+from torch.utils.data import DataLoader, Dataset
+from torchvision.transforms import Resize, Compose, ToTensor, Normalize, RandomResizedCrop, RandomGrayscale, RandomHorizontalFlip, RandomVerticalFlip, Pad, RandomRotation, ColorJitter, RandomApply, CenterCrop
+
 ########################################################################################
 # TRAINING DATALOADER WITH DATA AUGMENTATION #
 

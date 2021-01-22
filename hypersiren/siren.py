@@ -1,3 +1,6 @@
+import torch
+from torch import nn
+
 #############################################################################################################
 # BASIC SIREN #
 # This is a basic version of the SIREN, which can have its weights and bias initialized by passing them as paramethers

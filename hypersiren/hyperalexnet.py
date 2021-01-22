@@ -1,3 +1,5 @@
+import torch
+from torch import nn
 
 ###############################################################################################
 #Modified version of the alexnet, this is the one the worked the best#
