@@ -35,6 +35,14 @@ class Basic_SineLayer(nn.Module):
             else:
                 self.linear.weight = nn.Parameter(weight)
                 self.linear.bias = nn.Parameter(bias)
+                
+    def forward(self, input): #forward pass
+        return torch.sin(self.omega_0 * self.linear(input))
+    
+    def forward_with_intermediate(self, input): 
+        # For visualization of activation distributions
+        intermediate = self.omega_0 * self.linear(input)
+        return torch.sin(intermediate), intermediate
 
 class Basic_Siren(nn.Module):
     def __init__(self, in_features, hidden_features, hidden_layers, out_features, w = None, b = None, first_omega_0=30, hidden_omega_0=30.):
