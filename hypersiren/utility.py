@@ -102,3 +102,26 @@ def get_mgrid(width, height, dim=2):
  
     mgrid = mgrid.reshape(-1, dim)
     return mgrid
+
+'''
+function to get a tensor given an image
+'''
+def get_image_tensor(filename, width_LR, height_LR, factor):
+    img = Image.open(filename)
+      
+    transform_HR = Compose([
+        Resize((height_LR * factor, width_LR * factor)),
+        ToTensor(),
+        #Normalize(torch.Tensor([0.5, 0.5, 0.5]), torch.Tensor([0.5, 0.5, 0.5])) #normalize
+    ])
+ 
+    transform_LR = Compose([
+        Resize((height_LR, width_LR)),
+        ToTensor(),
+        #Normalize(torch.Tensor([0.5, 0.5, 0.5]), torch.Tensor([0.5, 0.5, 0.5])) #normalize
+    ])
+ 
+    img_HR = transform_HR(img)
+    img_LR = transform_LR(img)
+
+    return img_LR, img_HR
