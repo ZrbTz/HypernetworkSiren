@@ -1,10 +1,7 @@
 from . import *
-from .baselines import *
-from .dataio import *
-from .hyper import *
-from .hyperalexnet import *
-from .training import *
-from .utility import *
+from .hyperalexnet import HyperMetaAlexNet
+
+
 #############################################################################################################
 # BASIC SIREN #
 # This is a basic version of the SIREN, which can have its weights and bias initialized by passing them as paramethers
@@ -107,7 +104,7 @@ class Hyp_Siren(nn.Module):
         self.layerSizes.append([hidden_features,out_features])
         self.net.append(Hyp_LinearLayer())
 
-        self.hypernet = HyperAlexNet.hyperAlexNet(self.layerSizes, pretrained=False, progress=True)
+        self.hypernet = HyperMetaAlexNet.hyperMetaAlexNet(self.layerSizes, pretrained=False, progress=True)
     
     def forward(self, image_LR, coords_HR):
         #Let the hypernetwork generate our weights and bias for each layer

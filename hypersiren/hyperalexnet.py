@@ -1,17 +1,11 @@
 from . import *
-from .baselines import *
-from .dataio import *
-from .hyper import *
-from .siren import *
-from .training import *
-from .utility import *
 
 ###############################################################################################
 #Modified version of the alexnet, this is the one the worked the best#
 
 class HyperMetaAlexNet(nn.Module):
     def __init__(self, layerSizes):
-        super(HyperAlexNet, self).__init__()
+        super(HyperMetaAlexNet, self).__init__()
  
         self.layerSizes = layerSizes
 
