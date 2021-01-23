@@ -26,28 +26,8 @@ factor = 4
 width_HR = width_LR * factor
 height_HR = height_LR * factor
 
-checkpoint_path = "./backup_training/hyper_init2_SIREN_PRIOR_BRANCH_REG_DA_ep" + str(epochs) + "_im" + str(max_num_images) + ".chk"
-writer_folder = "./backup_training/hyper_init2_SIREN_PRIOR_BRANCH_REG_DA_ep" + str(epochs) + "_im" + str(max_num_images)
+from srgan import eval
 
-# set dataloader
-training_dataloader = DataLoader(Hyper_ImageFitting_RGB_DA(datasetTrainingPath, width_LR, height_LR, factor, max = max_num_images, apply_random_transforms=True), batch_size=batch_size, pin_memory=True, num_workers=0, shuffle=True)
-validation_dataloader = DataLoader(Hyper_ImageFitting_RGB_DA(datasetValidationPath, width_LR, height_LR, factor, max = max_val_images), batch_size=10, pin_memory=True, num_workers=0, shuffle=True)
-
-hyper_siren = Hyp_Siren(in_features=2, out_features=3, hidden_features=hidden_features, hidden_layers=3,
-                        first_omega_0=better_params[0], hidden_omega_0=better_params[1])
-
-hyper_siren.cuda()
-
-print_CUDA_memory_statistics()
-
-writer = SummaryWriter(writer_folder)
-
-prior_train(hyper_siren, training_dataloader, validation_dataloader, writer,
-            lr = better_params[2], gamma = better_params[3], width_HR = width_HR,
-            height_HR = height_HR, total_steps = epochs, 
-            steps_til_summary = steps_til_summary, lambda_latent = lambda_latent,
-            lambda_weights = lambda_weights, restore = restore, checkpoint_path = checkpoint_path)
-
-writer.flush()
-
-print_CUDA_memory_statistics()
+model = "srgan" 
+argv = ["-i", "srgan/configs/" + model + ".json", "srgan/resources/pretrained/" + model + ".pth", "./images/DIV2K_train_LR_x8/0001x8.png"]
+eval.main(argv)

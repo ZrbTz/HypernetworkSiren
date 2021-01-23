@@ -3,6 +3,9 @@ import argparse
 import os
 import sys
 
+# insert at 1, 0 is the script path (or '' in REPL)
+sys.path.insert(1, './srgan')
+
 from torch.utils.data import DataLoader
 from torchvision.utils import save_image
 
