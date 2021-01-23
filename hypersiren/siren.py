@@ -16,7 +16,26 @@ class Basic_SineLayer(nn.Module):
         self.linear = nn.Linear(in_features, out_features, bias=True)
         
         self.init_weights(weight, bias)
-        
+
+    def init_weights(self, weight = None, bias = None):
+        with torch.no_grad(): #Context-manager that disables gradient calculation
+            if weight == None or bias == None:
+                if self.is_first:
+                    #Fills the input Tensor with values drawn from the uniform distribution
+
+                    #Initialize weights
+                    self.linear.weight.uniform_(-1 / self.in_features, 
+                                                1 / self.in_features)      
+                else:
+                    #Fills the input Tensor with values drawn from the uniform distribution
+
+                    #Initialize weights
+                    self.linear.weight.uniform_(-np.sqrt(6 / self.in_features) / self.omega_0, 
+                                                np.sqrt(6 / self.in_features) / self.omega_0)
+            else:
+                self.linear.weight = nn.Parameter(weight)
+                self.linear.bias = nn.Parameter(bias)
+
 class Basic_Siren(nn.Module):
     def __init__(self, in_features, hidden_features, hidden_layers, out_features, w = None, b = None, first_omega_0=30, hidden_omega_0=30.):
         super().__init__()
