@@ -5,7 +5,18 @@ from .hyperalexnet import HyperMetaAlexNet
 #############################################################################################################
 # BASIC SIREN #
 # This is a basic version of the SIREN, which can have its weights and bias initialized by passing them as paramethers
-
+class Basic_SineLayer(nn.Module):    
+    def __init__(self, in_features, out_features, is_first=False, weight = None, bias = None, omega_0=30):
+        super().__init__()
+        self.omega_0 = omega_0
+        
+        self.is_first = is_first
+        
+        self.in_features = in_features
+        self.linear = nn.Linear(in_features, out_features, bias=True)
+        
+        self.init_weights(weight, bias)
+        
 class Basic_Siren(nn.Module):
     def __init__(self, in_features, hidden_features, hidden_layers, out_features, w = None, b = None, first_omega_0=30, hidden_omega_0=30.):
         super().__init__()
