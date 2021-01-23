@@ -1,4 +1,10 @@
 from . import *
+from .baselines import *
+from .dataio import *
+from .hyper import *
+from .hyperalexnet import *
+from .training import *
+from .utility import *
 #############################################################################################################
 # BASIC SIREN #
 # This is a basic version of the SIREN, which can have its weights and bias initialized by passing them as paramethers

@@ -1,4 +1,10 @@
 from . import *
+from .baselines import *
+from .dataio import *
+from .hyper import *
+from .hyperalexnet import *
+from .siren import *
+from .utility import *
 ########################################################################################################################
 # HYPERNETWORK TRAINING #
 # Training of hypersyren, the hypernetwork will be trained to give our SIREN a good prior

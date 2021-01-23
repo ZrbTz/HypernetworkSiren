@@ -1,4 +1,10 @@
 from . import *
+from .baselines import *
+from .dataio import *
+from .hyper import *
+from .hyperalexnet import *
+from .siren import *
+from .training import *
 """
 Function to be used to calculate the psnr between an input image and a target image
 """
@@ -106,22 +112,29 @@ def get_mgrid(width, height, dim=2):
 '''
 function to get a tensor given an image
 '''
-def get_image_tensor(filename, width_LR, height_LR, factor):
-    img = Image.open(filename)
-      
+def get_image_tensor(filename, width_LR=None, height_LR=None, factor=None):
+    img = Image.open(filename).convert('RGB')
+
+    if width_LR is None or height_LR is None or factor is None:
+        return img
+       
     transform_HR = Compose([
         Resize((height_LR * factor, width_LR * factor)),
         ToTensor(),
-        #Normalize(torch.Tensor([0.5, 0.5, 0.5]), torch.Tensor([0.5, 0.5, 0.5])) #normalize
     ])
  
     transform_LR = Compose([
         Resize((height_LR, width_LR)),
         ToTensor(),
-        #Normalize(torch.Tensor([0.5, 0.5, 0.5]), torch.Tensor([0.5, 0.5, 0.5])) #normalize
     ])
+
+    # normalize = Compose([
+    #     Normalize(torch.Tensor([0.5, 0.5, 0.5]), torch.Tensor([0.5, 0.5, 0.5])) #normalize
+    # ])
  
     img_HR = transform_HR(img)
     img_LR = transform_LR(img)
+    # img_LR_norm = normalize(img_LR)
 
+    # return img_LR, img_LR_norm, img_HR
     return img_LR, img_HR

@@ -1,4 +1,11 @@
 from . import *
+from .baselines import *
+from .hyper import *
+from .hyperalexnet import *
+from .siren import *
+from .training import *
+from .utility import *
+
 ########################################################################################
 # TRAINING DATALOADER WITH DATA AUGMENTATION #
 
