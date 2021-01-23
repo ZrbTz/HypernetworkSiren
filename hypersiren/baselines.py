@@ -5,7 +5,7 @@ from .utility import *
 Function to get an upscaled image using the bicubip interpolation method
 '''
 def get_bicubic_image(filename, lrwdim, lrhdim, hrwdim, hrhdim):
-  img = Image.open(filename)
+  img = Image.open(filename).convert('RGB')
 
   transform = Compose([
       Resize((lrhdim,lrwdim), interpolation=Image.BICUBIC),
