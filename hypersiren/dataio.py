@@ -2,7 +2,7 @@ from . import *
 ########################################################################################
 # TRAINING DATALOADER WITH DATA AUGMENTATION #
 
-class Hyper_ImageFitting_RGB(Dataset):
+class Hyper_ImageFitting_RGB_DA(Dataset):
     def __init__(self, path, width_LR, height_LR, factor, max=200, apply_random_transforms = False):
         super().__init__()
         self.width_LR = width_LR
