@@ -1,4 +1,5 @@
 from . import *
+from torchvision.transforms import Grayscale
 """
 Function to be used to calculate the psnr between an input image and a target image
 """

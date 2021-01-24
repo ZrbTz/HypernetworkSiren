@@ -1,5 +1,6 @@
 from . import *
 from .utility import *
+import scipy.ndimage
 
 ########################################################################################
 # TRAINING DATALOADER WITH DATA AUGMENTATION #
@@ -160,7 +161,7 @@ class ImageFittingRGB_grad(Dataset):
 
         for img in images:
           imagePath = path + "/" + img
-          self.dataset[self.counter] = (get_image_tensor(imagePath, width_LR, height_LR, factor), imagePath)
+          self.dataset[self.counter] = (get_image_tensor_grad(imagePath, width_LR, height_LR, factor), imagePath)
           self.counter += 1
           if self.counter == max:
             break
