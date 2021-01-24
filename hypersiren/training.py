@@ -12,11 +12,12 @@ from .utility import *
 
 def prior_train(net, dataloader, validationDataLoader, writer, lr=1e-4, gamma=0.1, step = 0, total_steps = 500,
                 steps_til_summary = 5, width_HR = 256, height_HR = 256, lambda_latent = 0, lambda_weights = 0,
-                restore=False, checkpoint_path=""):
+                lambda_biases = 0, restore=False, checkpoint_path=""):
   #define optimizer
-  params_to_optimize = net.parameters()
+  #params_to_optimize = list(net.hypernet.generateWeights.parameters()) + list(net.hypernet.features.parameters())
+  params_to_optimize = net.hypernet.parameters()
   optimizer = torch.optim.Adam(lr=lr, params=params_to_optimize, weight_decay=0.0005)
-  scheduler= torch.optim.lr_scheduler.StepLR(optimizer, total_steps//2, gamma=gamma)
+  scheduler= torch.optim.lr_scheduler.StepLR(optimizer, total_steps*3//4, gamma=gamma)
 
   step = restoreModel(net = net, scheduler = scheduler, optimizer = optimizer, restore = restore, checkpoint_path = checkpoint_path)
  
@@ -29,11 +30,12 @@ def prior_train(net, dataloader, validationDataLoader, writer, lr=1e-4, gamma=0.
  
           input_grid_HR, ground_truth_HR, ground_truth_LR = input_grid_HR.cuda(), ground_truth_HR.cuda(), ground_truth_LR.cuda()
  
-          output_image_HR, coords_HR, weights, bias, latent_space = net(ground_truth_LR, input_grid_HR) #forward pass 
+          output_image_HR, coords_HR, weights, biases, latent_space = net(ground_truth_LR, input_grid_HR) #forward pass 
  
           loss = ((output_image_HR - ground_truth_HR)**2).mean()   #calculate loss on image (MSE)
           loss += lambda_latent * ((latent_space)**2).mean()  #loss on latent space (enforces a Gaussian prior on latent code)
           loss += lambda_weights * ((weights)**2).mean()   #loss on weights (encourage a lower frequency representation of the image)
+          loss += lambda_biases * ((biases)**2).mean()   #loss on weights (encourage a lower frequency representation of the image)
 
           psnrs_t.append(psnr(input = output_image_HR, target = ground_truth_HR))
 
