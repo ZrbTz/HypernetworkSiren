@@ -144,7 +144,7 @@ class TestImageFitting_RGB(Dataset):
 
 ########################################################################################
 
-class ImageFittingRGB_with_reg(Dataset):
+class ImageFittingRGB_grad(Dataset):
 #Pixels contains RGB values
 #Coords is a grid containing coordinates
     def __init__(self, path, width_LR, height_LR, factor, max=1):
