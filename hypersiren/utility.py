@@ -122,13 +122,73 @@ def get_image_tensor(filename, width_LR=None, height_LR=None, factor=None):
         ToTensor(),
     ])
 
-    # normalize = Compose([
-    #     Normalize(torch.Tensor([0.5, 0.5, 0.5]), torch.Tensor([0.5, 0.5, 0.5])) #normalize
-    # ])
- 
     img_HR = transform_HR(img)
     img_LR = transform_LR(img)
-    # img_LR_norm = normalize(img_LR)
 
-    # return img_LR, img_LR_norm, img_HR
     return img_LR, img_HR
+
+'''functions to get a tensor given an image, which includes the gradient'''
+
+def get_image_tensor_grad(filename, width_LR=None, height_LR=None, factor=None):
+
+    img = Image.open(filename).convert('RGB')
+
+    if width_LR is None or height_LR is None or factor is None:
+        return img
+       
+    transform_HR = Compose([
+        Resize((height_LR * factor, width_LR * factor)),
+        ToTensor(),
+    ])
+ 
+    transform_LR = Compose([
+        Resize((height_LR, width_LR)),
+        ToTensor(),
+    ])
+
+    transform_GS = Compose([
+        Grayscale(),
+    ])
+
+    img_HR = transform_HR(img)
+    img_LR = transform_LR(img)
+    grayscaleImg = transform_GS(img_LR)
+
+    return img_LR, img_HR, grayscaleImg
+
+'''compute the laplacian'''
+def laplace(y, x):
+    grad = gradient(y, x)
+    return divergence(grad, x)
+
+'''compute the laplacian'''
+def divergence(y, x):
+    div = 0.
+    for i in range(y.shape[-1]):
+        #torch.autograd.grad(...)
+        #Computes and returns the sum of gradients of outputs w.r.t. the inputs.
+        div += torch.autograd.grad(y[..., i], x, torch.ones_like(y[..., i]), create_graph=True)[0][..., i:i+1]
+    return div
+
+'''compute the gradient'''
+def gradient(y, x, grad_outputs=None):
+    if grad_outputs is None:
+        #torch.ones_like(input)
+        #Returns a tensor filled with the scalar value 1, with the same size as input.
+        grad_outputs = torch.ones_like(y)
+
+    #torch.autograd.grad(...)
+    #Computes and returns the sum of gradients of outputs w.r.t. the inputs.
+    grad = torch.autograd.grad(y, [x], grad_outputs=grad_outputs, create_graph=True)[0]
+    return grad
+
+'''compute the loss on the gradient'''
+def gradients_mse(model_output, coords, gt_gradients):
+    # compute gradients on the model
+
+    #calculate the gradient from the output image of the model
+    gradients = gradient(model_output, coords)
+
+    # compare them with the ground-truth gradients (mean squared error)
+    gradients_loss = torch.mean((gradients - gt_gradients).pow(2).sum(-1))
+    return gradients_loss

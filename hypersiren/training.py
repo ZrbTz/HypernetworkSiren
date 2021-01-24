@@ -140,3 +140,58 @@ def train(net, model_input, ground_truth, writer, name, lr=1e-4, gamma=0.1, tota
       loss.backward() ##apply gradients
       optimizer.step()  #make optimizer step
       scheduler.step()
+
+#################################################################################################################################################
+
+def train_grad(net, input_grid_LR, ground_truth_LR,  grad, name, writer, lr=1e-4,
+                   gamma=0.1, total_steps = 1500, steps_til_summary = 100, L1 = False, L2 = False, L_grad = False, width = 64, height = 64, reg_lambda=0.0001):
+  #define optimizer
+  optimizer = torch.optim.Adam(lr=lr, params=net.parameters(), weight_decay=0.0005)
+  scheduler= torch.optim.lr_scheduler.StepLR(optimizer, 800, gamma=gamma)
+
+  # training
+  for step in range(total_steps):
+
+      #model_output is the output of the single forward pass, it is an output image
+      #tensor of dimension (sidelength x sidelength, 1);
+      #this represents the y^ (output) value for each pixel
+
+      #coords is a copy of the model_input pairs
+      model_output, coords = net(input_grid_LR) #forward pass 
+
+      #model_output and ground_truth (original image) have the same dimensions
+      loss = ((model_output - ground_truth_LR)**2).mean()  #calculate loss (MSE)
+      
+      #L1 regularization
+      if L1:
+        #print("L1")
+        L1_reg = 0
+        for name, param in net.named_parameters():
+          if 'weight' in name:
+            L1_reg = L1_reg + torch.norm(param, 1)
+        loss += reg_lambda * L1_reg
+
+      #L2 regularization
+      if L2:
+        #print("L2")
+        L2_reg = 0
+        for name, param in net.named_parameters():
+          if 'weight' in name:
+            L2_reg = L2_reg + torch.norm(param, 2)**2
+        loss += reg_lambda * L2_reg
+
+      #Gradient loss
+      if L_grad:
+        #print("Grad")
+        gradient_loss = gradients_mse(model_output, coords, grad)
+        loss = loss + reg_lambda * gradient_loss
+
+      writer.add_scalar("loss_fit_" + name, loss.item(), step)
+      
+      '''if step % steps_til_summary == steps_til_summary-1:
+          writer.add_image("img_fit_" + name, torch.clamp(model_output.cpu(), min=0, max=1).view(height,width,3).detach().numpy(), step, dataformats='HWC')'''
+
+      optimizer.zero_grad() #Sets the gradients of all optimized torch.Tensor to zero
+      loss.backward() ##apply gradients
+      optimizer.step()  #make optimizer step
+      scheduler.step()
