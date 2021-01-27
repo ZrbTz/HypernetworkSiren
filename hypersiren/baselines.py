@@ -22,7 +22,7 @@ NOTE: The input image format must be .png"
 '''
 def getSRGAN(imageName):
     model = "srgan" 
-    argv = ["-i", "configs/" + model + ".json", "resources/pretrained/" + model + ".pth", imageName]
+    argv = ["-i", "srgan/configs/" + model + ".json", "srgan/resources/pretrained/" + model + ".pth", imageName]
     eval.main(argv)
     imageName = imageName[:-4]
     imageName = imageName + "_srgan.png"
@@ -35,7 +35,7 @@ NOTE: The input image format must be .png"
 '''
 def getSRRESNET(imageName):
     model = "srresnet" 
-    argv = ["-i", "configs/" + model + ".json", "resources/pretrained/" + model + ".pth", imageName]
+    argv = ["-i", "srgan/configs/" + model + ".json", "srgan/resources/pretrained/" + model + ".pth", imageName]
     eval.main(argv)
     imageName = imageName[:-4]
     imageName = imageName + "_resnet.png"
