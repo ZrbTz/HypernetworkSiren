@@ -77,7 +77,7 @@ class HyperMetaAlexNet(nn.Module):
 
 class HyperBaseAlexNet(nn.Module):
     def __init__(self, layerSizes):
-        super(HyperAlexNet, self).__init__()
+        super(HyperBaseAlexNet, self).__init__()
  
         self.layerSizes = layerSizes
         self.totalNumberOfWeights = sum(x[0] * x[1] for x in self.layerSizes)
@@ -127,3 +127,49 @@ class HyperBaseAlexNet(nn.Module):
 
 ###############################################################################################
 
+class HyperBaseAlexNetFL(nn.Module):
+    def __init__(self, layerSizes):
+        super(HyperBaseAlexNetFL, self).__init__()
+ 
+        self.layerSizes = layerSizes
+
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(64, 192, kernel_size=5, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(192, 384, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(384, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+        )
+        self.avgpool = nn.AdaptiveAvgPool2d((6, 6))
+        self.generateWeights = nn.ModuleList()
+
+        for layer in self.layerSizes:
+            self.generateWeights.append(nn.Linear(256 * 6 * 6, (layer[0] + 1 ) * layer[1]))
+ 
+    def forward(self, image_LR):
+        x = self.features(image_LR)
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
+
+        weights = []
+        for generateW in self.generateWeights:
+            weights.append(generateW(x))
+
+        weight_outputs = torch.cat(weights, dim=1)
+ 
+        return weight_outputs
+ 
+    def hyperBaseAlexNetFL(layerSizes, pretrained = True, progress = True):
+        model = HyperBaseAlexNetFL(layerSizes)
+        if pretrained:
+            state_dict = load_state_dict_from_url(model_urls['alexnet'], progress=progress)
+            model.load_state_dict(state_dict, strict=False)
+        return model

@@ -44,6 +44,7 @@ class Basic_SineLayer(nn.Module):
         intermediate = self.omega_0 * self.linear(input)
         return torch.sin(intermediate), intermediate
 
+'''
 class Basic_Siren(nn.Module):
     def __init__(self, in_features, hidden_features, hidden_layers, out_features, w = None, b = None, first_omega_0=30, hidden_omega_0=30.):
         super().__init__()
@@ -66,6 +67,88 @@ class Basic_Siren(nn.Module):
                 
             self.net.append(final_linear)
         
+        #Initialization with paramethers
+        else:
+            w_start = 0
+            w_end = w_start + in_features * hidden_features
+            b_start = 0
+            b_end = b_start + hidden_features
+            self.net.append(Basic_SineLayer(in_features, hidden_features, omega_0=first_omega_0, weight = w[0][w_start : w_end].view(hidden_features,in_features), bias = b[0][b_start : b_end].view(hidden_features)))
+
+            for i in range(hidden_layers):
+                w_start = w_end
+                w_end = w_start + hidden_features * hidden_features
+                b_start = b_end
+                b_end = b_start + hidden_features
+                self.net.append(Basic_SineLayer(hidden_features, hidden_features, omega_0=hidden_omega_0, weight = w[0][w_start : w_end].view(hidden_features,hidden_features), bias = b[0][b_start : b_end].view(hidden_features)))
+
+            w_start = w_end
+            w_end = w_start + hidden_features * out_features
+            b_start = b_end
+            b_end = b_start + out_features
+            final_linear = nn.Linear(hidden_features, out_features)
+
+            with torch.no_grad():
+                final_linear.weight = nn.Parameter(w[0][w_start : w_end].view(out_features,hidden_features))
+                final_linear.bias = nn.Parameter(b[0][b_start : b_end].view(out_features))
+                
+            self.net.append(final_linear)            
+
+        self.net = nn.Sequential(*self.net)
+    
+    def forward(self, coords): 
+        coords = coords.clone().detach().requires_grad_(True) # allows to take derivative w.r.t. input
+        output = self.net(coords) #apply coords on net
+        return output, coords
+'''
+
+class Basic_Siren(nn.Module):
+    def __init__(self, in_features, hidden_features, hidden_layers, out_features, w = None, b = None, first_omega_0=30, hidden_omega_0=30.):
+        super().__init__()
+        
+        self.net = []   #net
+
+        #Initialization without parameters
+        if w == None and b == None:
+            #append the first sine layer
+            self.net.append(Basic_SineLayer(in_features, hidden_features, is_first=True, omega_0=first_omega_0))
+
+            #append all the other sine layers
+            for i in range(hidden_layers):
+                self.net.append(Basic_SineLayer(hidden_features, hidden_features, is_first=False, omega_0=hidden_omega_0))
+
+            final_linear = nn.Linear(hidden_features, out_features)
+            
+            with torch.no_grad(): #Context-manager that disables gradient calculation
+                final_linear.weight.uniform_(-np.sqrt(6 / hidden_features) / hidden_omega_0, np.sqrt(6 / hidden_features) / hidden_omega_0)
+                
+            self.net.append(final_linear)
+        elif b == None:
+            w_start = 0
+            w_end = w_start + in_features * hidden_features
+            b_start = w_end
+            b_end = b_start + hidden_features
+            self.net.append(Basic_SineLayer(in_features, hidden_features, omega_0=first_omega_0, weight = w[0][w_start : w_end].view(hidden_features,in_features), bias = w[0][b_start : b_end].view(hidden_features)))
+
+            for i in range(hidden_layers):
+                w_start = b_end
+                w_end = w_start + hidden_features * hidden_features
+                b_start = w_end
+                b_end = b_start + hidden_features
+                self.net.append(Basic_SineLayer(hidden_features, hidden_features, omega_0=hidden_omega_0, weight = w[0][w_start : w_end].view(hidden_features,hidden_features), bias = w[0][b_start : b_end].view(hidden_features)))
+
+            w_start = b_end
+            w_end = w_start + hidden_features * out_features
+            b_start = w_end
+            b_end = b_start + out_features
+            final_linear = nn.Linear(hidden_features, out_features)
+
+            with torch.no_grad():
+                final_linear.weight = nn.Parameter(w[0][w_start : w_end].view(out_features,hidden_features))
+                final_linear.bias = nn.Parameter(w[0][b_start : b_end].view(out_features))
+                
+            self.net.append(final_linear)            
+
         #Initialization with paramethers
         else:
             w_start = 0
