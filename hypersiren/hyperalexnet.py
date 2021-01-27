@@ -165,7 +165,7 @@ class HyperBaseAlexNetFL(nn.Module):
 
         weight_outputs = torch.cat(weights, dim=1)
  
-        return weight_outputs
+        return weight_outputs, None, None
  
     def hyperBaseAlexNetFL(layerSizes, pretrained = True, progress = True):
         model = HyperBaseAlexNetFL(layerSizes)
