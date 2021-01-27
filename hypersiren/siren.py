@@ -123,7 +123,7 @@ class Hyp_LinearLayer(nn.Module):
       
     
 class Hyp_Siren(nn.Module):
-    def __init__(self, in_features, hidden_features, hidden_layers, out_features,
+    def __init__(self, in_features, hidden_features, hidden_layers, out_features, hypernet,
                  first_omega_0=30, hidden_omega_0=30.):
         super().__init__()
  
@@ -142,7 +142,8 @@ class Hyp_Siren(nn.Module):
         self.layerSizes.append([hidden_features,out_features])
         self.net.append(Hyp_LinearLayer())
 
-        self.hypernet = HyperMetaAlexNet.hyperMetaAlexNet(self.layerSizes, pretrained=False, progress=True)
+        #self.hypernet = HyperMetaAlexNet.hyperMetaAlexNet(self.layerSizes, pretrained=False, progress=True)
+        self.hypernet = hypernet
     
     def forward(self, image_LR, coords_HR):
         #Let the hypernetwork generate our weights and bias for each layer

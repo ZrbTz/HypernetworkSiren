@@ -50,7 +50,7 @@ class HyperMetaAlexNet(nn.Module):
  
     def forward(self, image_LR):
         x = self.features(image_LR)
-        x = self.avgpool(x)
+        #x = self.avgpool(x)
         x = torch.flatten(x, 1)
 
         #FC layers
