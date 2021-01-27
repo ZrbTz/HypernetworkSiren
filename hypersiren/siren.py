@@ -188,6 +188,7 @@ class Basic_Siren(nn.Module):
 # This version of the SIREN generates weights and bias using an hypernetwork
 #Todo: decouple this and alexnet hypernetwork
 
+'''
 class Hyp_SineLayer(nn.Module):    
     def __init__(self, omega_0=30):
         super().__init__()
@@ -253,6 +254,97 @@ class Hyp_Siren(nn.Module):
           b_start = b_end
           b_end = b_start + self.layerSizes[-1][1]
           outputs.append(self.net[-1](output, weights[w_start : w_end].view(self.layerSizes[-1][1],self.layerSizes[-1][0]), b[j][b_start : b_end].view(self.layerSizes[-1][1])))
+
+        outputs = torch.cat(outputs)
+
+        return outputs, coords_HR, w, b, latent_space
+'''
+
+class Hyp_SineLayer_FC(nn.Module):    
+    def __init__(self, omega_0=30):
+        super().__init__()
+        self.omega_0 = omega_0
+        
+    def forward(self, input, weight, bias): #forward pass
+        return torch.sin(self.omega_0 * torch.nn.functional.linear(input, weight, bias))
+ 
+ 
+class Hyp_LinearLayer_FC(nn.Module):
+    def __init__(self):
+        super().__init__()
+        
+    def forward(self, input, weight, bias): #forward pass
+        return torch.nn.functional.linear(input, weight, bias)
+      
+    
+class Hyp_Siren_FC(nn.Module):
+    def __init__(self, in_features, hidden_features, hidden_layers, out_features, hypernetInit,
+                 first_omega_0=30, hidden_omega_0=30.):
+        super().__init__()
+ 
+        self.hidden_layers = hidden_layers
+ 
+        self.layerSizes = []
+        self.net = nn.ModuleList()
+ 
+        self.layerSizes.append([in_features,hidden_features])
+        self.net.append(Hyp_SineLayer(omega_0=first_omega_0))
+ 
+        for i in range(self.hidden_layers):
+          self.layerSizes.append([hidden_features,hidden_features])
+          self.net.append(Hyp_SineLayer(omega_0=hidden_omega_0))
+ 
+        self.layerSizes.append([hidden_features,out_features])
+        self.net.append(Hyp_LinearLayer())
+ 
+        self.hypernet = hypernetInit(self.layerSizes, pretrained=False, progress=True)
+ 
+    
+    def forward(self, image_LR, coords_HR):  #forward pass
+        w, b, latent_space = self.hypernet(image_LR)
+
+        outputs = []
+        if b == None:
+          for j, weights in enumerate(w):
+            w_start = 0
+            w_end = w_start + self.layerSizes[0][0] * self.layerSizes[0][1]
+            b_start = w_end
+            b_end = b_start + self.layerSizes[0][1]
+            output = self.net[0](coords_HR[j].view(1,-1,2), weights[w_start : w_end].view(self.layerSizes[0][1],self.layerSizes[0][0]), weights[b_start : b_end].view(self.layerSizes[0][1]))
+
+            for i in range(1, self.hidden_layers+1):
+                w_start = b_end
+                w_end = w_start + self.layerSizes[i][0] * self.layerSizes[i][1]
+                b_start = w_end
+                b_end = b_start + self.layerSizes[i][1]
+                output = self.net[i](output, weights[w_start : w_end].view(self.layerSizes[i][1],self.layerSizes[i][0]), weights[b_start : b_end].view(self.layerSizes[i][1]))
+
+            w_start = b_end
+            w_end = w_start + self.layerSizes[-1][0] * self.layerSizes[-1][1]
+            b_start = w_end
+            b_end = b_start + self.layerSizes[-1][1]
+            outputs.append(self.net[-1](output, weights[w_start : w_end].view(self.layerSizes[-1][1],self.layerSizes[-1][0]), weights[b_start : b_end].view(self.layerSizes[-1][1])))
+
+        else:
+          for j, weights in enumerate(w):
+            w_start = 0
+            w_end = w_start + self.layerSizes[0][0] * self.layerSizes[0][1]
+            b_start = 0
+            b_end = b_start + self.layerSizes[0][1]
+            output = self.net[0](coords_HR[j].view(1,-1,2), weights[w_start : w_end].view(self.layerSizes[0][1],self.layerSizes[0][0]), b[j][b_start : b_end].view(self.layerSizes[0][1]))
+
+            for i in range(1, self.hidden_layers+1):
+                w_start = w_end
+                w_end = w_start + self.layerSizes[i][0] * self.layerSizes[i][1]
+                b_start = b_end
+                b_end = b_start + self.layerSizes[i][1]
+                output = self.net[i](output, weights[w_start : w_end].view(self.layerSizes[i][1],self.layerSizes[i][0]), b[j][b_start : b_end].view(self.layerSizes[i][1]))
+
+            w_start = w_end
+            w_end = w_start + self.layerSizes[-1][0] * self.layerSizes[-1][1]
+            b_start = b_end
+            b_end = b_start + self.layerSizes[-1][1]
+            outputs.append(self.net[-1](output, weights[w_start : w_end].view(self.layerSizes[-1][1],self.layerSizes[-1][0]), b[j][b_start : b_end].view(self.layerSizes[-1][1])))
 
         outputs = torch.cat(outputs)
 

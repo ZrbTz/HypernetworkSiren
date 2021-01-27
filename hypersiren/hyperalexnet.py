@@ -115,7 +115,7 @@ class HyperBaseAlexNet(nn.Module):
         x = torch.flatten(x, 1)
         weight_outputs = self.generateWeights(x)
  
-        return weight_outputs
+        return weight_outputs, None, None
  
     def hyperBaseAlexNet(layerSizes, pretrained = True, progress = True):
         model = HyperBaseAlexNet(layerSizes)
@@ -127,9 +127,9 @@ class HyperBaseAlexNet(nn.Module):
 
 ###############################################################################################
 
-class HyperBaseAlexNetFL(nn.Module):
+class HyperBaseAlexNetFC(nn.Module):
     def __init__(self, layerSizes):
-        super(HyperBaseAlexNetFL, self).__init__()
+        super(HyperBaseAlexNetFC, self).__init__()
  
         self.layerSizes = layerSizes
 
@@ -167,8 +167,8 @@ class HyperBaseAlexNetFL(nn.Module):
  
         return weight_outputs, None, None
  
-    def hyperBaseAlexNetFL(layerSizes, pretrained = True, progress = True):
-        model = HyperBaseAlexNetFL(layerSizes)
+    def hyperBaseAlexNetFC(layerSizes, pretrained = True, progress = True):
+        model = HyperBaseAlexNetFC(layerSizes)
         if pretrained:
             state_dict = load_state_dict_from_url(model_urls['alexnet'], progress=progress)
             model.load_state_dict(state_dict, strict=False)
