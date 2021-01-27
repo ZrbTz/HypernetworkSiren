@@ -20,7 +20,7 @@ def get_bicubic_image(filename, lrwdim, lrhdim, hrwdim, hrhdim):
 Script to get an upscaled image using the SRGAN method
 NOTE: The input image format must be .png"
 '''
-def getSRGAN(imageName):
+def getSRGAN(imageName, height_HR, width_HR):
     model = "srgan" 
     argv = ["-i", "srgan/configs/" + model + ".json", "srgan/resources/pretrained/" + model + ".pth", imageName]
     eval.main(argv)
@@ -33,7 +33,7 @@ def getSRGAN(imageName):
 Script to get an upscaled image using the SRResNet method
 NOTE: The input image format must be .png"
 '''
-def getSRRESNET(imageName):
+def getSRRESNET(imageName, height_HR, width_HR):
     model = "srresnet" 
     argv = ["-i", "srgan/configs/" + model + ".json", "srgan/resources/pretrained/" + model + ".pth", imageName]
     eval.main(argv)
