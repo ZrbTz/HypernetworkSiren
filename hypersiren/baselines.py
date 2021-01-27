@@ -25,7 +25,7 @@ def getSRGAN(imageName, height_HR, width_HR):
     argv = ["-i", "srgan/configs/" + model + ".json", "srgan/resources/pretrained/" + model + ".pth", imageName]
     eval.main(argv)
     imageName = imageName[:-4]
-    imageName = imageName + "_srgan.png"
+    imageName = imageName + "_pred.png"
     srgan = get_image_tensor(imageName, height_HR, width_HR,1)[0].permute(1, 2, 0).view(-1, 3)
     return srgan
 
@@ -38,6 +38,6 @@ def getSRRESNET(imageName, height_HR, width_HR):
     argv = ["-i", "srgan/configs/" + model + ".json", "srgan/resources/pretrained/" + model + ".pth", imageName]
     eval.main(argv)
     imageName = imageName[:-4]
-    imageName = imageName + "_resnet.png"
+    imageName = imageName + "_pred.png"
     srresnet = get_image_tensor(imageName, height_HR, width_HR,1)[0].permute(1, 2, 0).view(-1, 3)
     return srresnet
