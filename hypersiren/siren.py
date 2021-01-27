@@ -260,7 +260,7 @@ class Hyp_Siren(nn.Module):
         return outputs, coords_HR, w, b, latent_space
 '''
 
-class Hyp_SineLayer_FC(nn.Module):    
+class Hyp_SineLayer(nn.Module):    
     def __init__(self, omega_0=30):
         super().__init__()
         self.omega_0 = omega_0
@@ -269,15 +269,14 @@ class Hyp_SineLayer_FC(nn.Module):
         return torch.sin(self.omega_0 * torch.nn.functional.linear(input, weight, bias))
  
  
-class Hyp_LinearLayer_FC(nn.Module):
+class Hyp_LinearLayer(nn.Module):
     def __init__(self):
         super().__init__()
         
     def forward(self, input, weight, bias): #forward pass
         return torch.nn.functional.linear(input, weight, bias)
-      
-    
-class Hyp_Siren_FC(nn.Module):
+
+class Hyp_Siren(nn.Module):
     def __init__(self, in_features, hidden_features, hidden_layers, out_features, hypernetInit,
                  first_omega_0=30, hidden_omega_0=30.):
         super().__init__()
