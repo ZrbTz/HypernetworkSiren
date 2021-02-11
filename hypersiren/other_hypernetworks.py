@@ -1,3 +1,5 @@
+from . import *
+
 ########################################################################
 #Convolutional Network using Naive Inception block and residual connection
 
