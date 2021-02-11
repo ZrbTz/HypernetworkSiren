@@ -198,3 +198,68 @@ def _vgg(arch, cfg,  layerSizes, batch_norm, pretrained, progress, **kwargs):
 
 def vgg19(layerSizes, pretrained=False, progress=True, **kwargs):
     return _vgg('vgg19', 'E',  layerSizes, False, pretrained, progress, **kwargs)
+
+##########################################################################################
+
+class ResidualBlock_2(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, stride = 1, padding = 1):
+        super().__init__()
+
+        self.block = nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding)
+    
+    def forward(self, x):
+        residual = x
+        x = self.block(x)
+        x += residual
+        return x
+ 
+class AlexWithResidual(nn.Module):
+    def __init__(self, layerSizes):
+        super(AlexWithResidual, self).__init__()
+ 
+        self.layerSizes = layerSizes
+        self.totalNumberOfWeights = sum(x[0] * x[1] for x in self.layerSizes)
+        self.totalNumberOfBiases = sum(x[1] for x in self.layerSizes)
+ 
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(64, 192, kernel_size=5, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(192, 384, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(384, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            #nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            ResidualBlock_2(256, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+        )
+        self.avgpool = nn.AdaptiveAvgPool2d((6, 6))
+        self.generateWeights = nn.ModuleList()
+
+        for layer in self.layerSizes:
+            self.generateWeights.append(nn.Linear(256 * 6 * 6, (layer[0] + 1 ) * layer[1]))
+ 
+    def forward(self, image_LR):
+        x = self.features(image_LR)
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
+
+        weights = []
+        for generateW in self.generateWeights:
+            weights.append(generateW(x))
+
+        weight_outputs = torch.cat(weights, dim=1)
+ 
+        return weight_outputs, None, x
+ 
+    def hyperAlexWithResidual(layerSizes, pretrained = False, progress = True):
+        model = AlexWithResidual(layerSizes)
+        if pretrained:
+            state_dict = load_state_dict_from_url(model_urls['alexnet'],
+                                                  progress=progress)
+            model.load_state_dict(state_dict, strict=False)
+        return model
