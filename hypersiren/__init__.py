@@ -24,7 +24,8 @@ except ImportError:
 
 from .baselines import *
 from .dataio import *
-from .hyper import *
+from .other_hypernetworks import *
+# from .hyper import *
 from .hyperalexnet import *
 from .siren import *
 from .training import *
