@@ -65,7 +65,7 @@ class HyperMetaAlexNet(nn.Module):
  
         return weight_outputs, biases_outputs, x
  
-    def hyperMetaAlexNet(layerSizes, pretrained = True, progress = True):
+    def hyperMetaAlexNet(layerSizes, pretrained = False, progress = True):
         model = HyperMetaAlexNet(layerSizes)
         if pretrained:
             state_dict = load_state_dict_from_url(model_urls['alexnet'], progress=progress)
@@ -117,7 +117,7 @@ class HyperBaseAlexNet(nn.Module):
  
         return weight_outputs, None, None
  
-    def hyperBaseAlexNet(layerSizes, pretrained = True, progress = True):
+    def hyperBaseAlexNet(layerSizes, pretrained = False, progress = True):
         model = HyperBaseAlexNet(layerSizes)
         if pretrained:
             state_dict = load_state_dict_from_url(model_urls['alexnet'],
@@ -167,7 +167,7 @@ class HyperBaseAlexNetFC(nn.Module):
  
         return weight_outputs, None, None
  
-    def hyperBaseAlexNetFC(layerSizes, pretrained = True, progress = True):
+    def hyperBaseAlexNetFC(layerSizes, pretrained = False, progress = True):
         model = HyperBaseAlexNetFC(layerSizes)
         if pretrained:
             state_dict = load_state_dict_from_url(model_urls['alexnet'], progress=progress)

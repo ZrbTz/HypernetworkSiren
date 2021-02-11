@@ -92,12 +92,8 @@ class InceptionAndResidual(nn.Module):
  
         return weight_outputs, None, x
  
-    def hyperInceptionAndResidual(layerSizes, pretrained = True, progress = True):
+    def hyperInceptionAndResidual(layerSizes, pretrained = False, progress = True):
         model = InceptionAndResidual(layerSizes)
-        if pretrained:
-            state_dict = load_state_dict_from_url(model_urls['alexnet'],
-                                                  progress=progress)
-            model.load_state_dict(state_dict, strict=False)
         return model
 
 
