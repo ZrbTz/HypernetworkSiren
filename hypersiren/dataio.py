@@ -1,8 +1,11 @@
 from . import *
+from .utility import *
+import scipy.ndimage
+
 ########################################################################################
 # TRAINING DATALOADER WITH DATA AUGMENTATION #
 
-class Hyper_ImageFitting_RGB(Dataset):
+class Hyper_ImageFitting_RGB_DA(Dataset):
     def __init__(self, path, width_LR, height_LR, factor, max=200, apply_random_transforms = False):
         super().__init__()
         self.width_LR = width_LR
@@ -139,3 +142,54 @@ class TestImageFitting_RGB(Dataset):
         coords_HR = get_mgrid(self.height_LR*self.factor, self.width_LR*self.factor)
             
         return coords_LR, coords_HR, pixels_HR, pixels_LR, pixels_LR_original, filename
+
+########################################################################################
+
+class ImageFittingRGB_grad(Dataset):
+#Pixels contains RGB values
+#Coords is a grid containing coordinates
+    def __init__(self, path, width_LR, height_LR, factor, max=1):
+        super().__init__()
+        super().__init__()
+        self.width_LR = width_LR
+        self.height_LR = height_LR
+        self.factor = factor
+
+        self.dataset = {}
+        self.counter = 0
+        images = os.listdir(path)
+
+        for img in images:
+          imagePath = path + "/" + img
+          self.dataset[self.counter] = (get_image_tensor_grad(imagePath, width_LR, height_LR, factor), imagePath)
+          self.counter += 1
+          if self.counter == max:
+            break
+       
+    def __len__(self):
+        return self.counter
+
+    def __getitem__(self, idx):   
+        image, filename = self.dataset[idx]
+
+        img_LR, img_HR, grayscaleImg = image
+
+        pixels_LR_original = img_LR
+        pixels_LR = img_LR.permute(1, 2, 0).view(-1, 3)
+        pixels_HR = img_HR.permute(1, 2, 0).view(-1, 3)
+
+        coords_LR = get_mgrid(self.height_LR, self.width_LR)
+        coords_HR = get_mgrid(self.height_LR*self.factor, self.width_LR*self.factor)
+
+        grads_x = scipy.ndimage.sobel(grayscaleImg.numpy(), axis=1).squeeze(0)[..., None]
+        grads_y = scipy.ndimage.sobel(grayscaleImg.numpy(), axis=2).squeeze(0)[..., None]
+
+        grads_x, grads_y = torch.from_numpy(grads_x), torch.from_numpy(grads_y)
+                
+        self.grads_LR = torch.stack((grads_x, grads_y), dim=-1).view(-1, 2)
+
+        self.laplace_LR = scipy.ndimage.laplace(grayscaleImg.numpy()).squeeze(0)[..., None]
+
+        self.laplace_LR = torch.from_numpy(self.laplace_LR)
+            
+        return coords_LR, coords_HR, pixels_LR, pixels_HR, pixels_LR_original, self.grads_LR, self.laplace_LR, filename
