@@ -1,7 +1,7 @@
 # Single Image Super Resolution with SIREN
 
 This work was made by: Simone Cavallera, Michele Crepaldi, Thomas Madeo
-our report can be found here https://it.overleaf.com/1191221391dchmtqmqmjkq
+
 ## High-Level structure
 Hypersiren is a python package and is organized as follows:
 * dataio.py contains dataloaders for both training and testing data
